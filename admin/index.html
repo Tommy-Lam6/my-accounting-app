@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理後台</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: linear-gradient(135deg, #e8f4e8 0%, #c3e6c3 100%);
+        padding: 20px;
+        color: #2d5016;
+        letter-spacing: 0.5px;
+      }
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(45, 80, 22, 0.2);
+        border: 3px solid #8a6d3b;
+        position: relative;
+        overflow: hidden;
+      }
+      .admin-container::before {
+        content: "☯";
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+        color: #8a6d3b;
+        opacity: 0.3;
+        transform: rotate(15deg);
+      }
+      h1 {
+        color: #2d5016;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 36px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        padding-bottom: 15px;
+      }
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+        border-radius: 2px;
+      }
+      h2 {
+        color: #2d5016;
+        margin: 25px 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #8a6d3b;
+        font-size: 26px;
+        font-weight: bold;
+        background: linear-gradient(
+          90deg,
+          rgba(138, 109, 59, 0.1),
+          transparent
+        );
+        padding-left: 15px;
+        border-radius: 0 8px 8px 0;
+        position: relative;
+      }
+      h2::before {
+        content: "道";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8a6d3b;
+        font-size: 20px;
+        opacity: 0.7;
+      }
+      .data-section,
+      .users-section {
+        background: linear-gradient(135deg, #f8fdf8 0%, #f0f9f0 100%);
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 12px;
+        border-left: 6px solid #8a6d3b;
+        box-shadow: 0 4px 12px rgba(45, 80, 22, 0.15);
+        border-top: 1px solid #8a6d3b;
+        border-right: 1px solid #8a6d3b;
+        border-bottom: 1px solid #8a6d3b;
+        position: relative;
+      }
+      .data-section::before,
+      .users-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+        border-radius: 12px 12px 0 0;
+      }
+      button {
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        border: none;
+        padding: 12px 18px;
+        margin: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-weight: 600;
+        box-shadow: 0 4px 8px rgba(45, 80, 22, 0.3);
+        border: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      button:hover {
+        background: linear-gradient(135deg, #4a7c3a 0%, #2d5016 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(45, 80, 22, 0.4);
+      }
+      button:active {
+        transform: translateY(-1px);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid #8a6d3b;
+      }
+      th,
+      td {
+        border: 1px solid #8a6d3b;
+        padding: 12px;
+        text-align: left;
+        font-size: 16px;
+      }
+      th {
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        font-weight: 600;
+        font-size: 18px;
+        text-align: center;
+      }
+      tr:nth-child(even) {
+        background: rgba(241, 248, 233, 0.5);
+      }
+      tr:hover {
+        background: rgba(232, 245, 232, 0.8);
+        transform: scale(1.01);
+        transition: all 0.2s ease;
+      }
+      .user-form {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #8a6d3b;
+      }
+      .user-form input,
+      .user-form select {
+        padding: 10px 12px;
+        border: 2px solid #8a6d3b;
+        border-radius: 6px;
+        flex: 1;
+        min-width: 150px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-size: 16px;
+        background: #f9f9f9;
+        transition: all 0.3s ease;
+      }
+      .user-form input:focus,
+      .user-form select:focus {
+        outline: none;
+        border-color: #2d5016;
+        background: white;
+        box-shadow: 0 0 8px rgba(45, 80, 22, 0.2);
+      }
+      .log-box {
+        background: linear-gradient(135deg, #1e272e 0%, #2c3e50 100%);
+        color: #d2dae2;
+        padding: 18px;
+        border-radius: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: "DFKai-SB", "標楷體", monospace;
+        margin: 15px 0;
+        border: 2px solid #8a6d3b;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      .log-box::-webkit-scrollbar {
+        width: 8px;
+      }
+      .log-box::-webkit-scrollbar-thumb {
+        background: #8a6d3b;
+        border-radius: 4px;
+      }
+      .log-box::-webkit-scrollbar-track {
+        background: #34495e;
+      }
+      .log-entry {
+        margin: 8px 0;
+        padding: 5px 0;
+        border-bottom: 1px solid #333;
+        font-size: 15px;
+      }
+      .log-time {
+        color: #8a6d3b;
+        font-weight: bold;
+      }
+      .log-level.info {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .log-level.error {
+        color: #f44336;
+        font-weight: bold;
+      }
+      .log-level.warn {
+        color: #ff9800;
+        font-weight: bold;
+      }
+      .system-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+      }
+      .info-item {
+        background: linear-gradient(135deg, #f8fdf8 0%, #f0f9f0 100%);
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 5px solid #8a6d3b;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid #8a6d3b;
+        border-right: 1px solid #8a6d3b;
+        border-bottom: 1px solid #8a6d3b;
+        transition: transform 0.3s ease;
+      }
+      .info-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* 武當派特色動畫 */
+      @keyframes taoPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .tao-pulse {
+        animation: taoPulse 3s infinite;
+      }
+
+      /* 陰陽平衡指示器 */
+      .balance-bar {
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+        border-radius: 3px;
+        margin: 10px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .balance-bar::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: balanceFlow 3s infinite;
+      }
+
+      @keyframes balanceFlow {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .admin-container {
+          padding: 15px;
+        }
+
+        h1 {
+          font-size: 28px;
+        }
+
+        h2 {
+          font-size: 22px;
+        }
+
+        .user-form {
+          flex-direction: column;
+        }
+
+        .user-form input,
+        .user-form select {
+          min-width: 100%;
+        }
+
+        button {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <h1>📊 記賬系統管理員頁面</h1>
+
+      <!-- 控制按鈕 -->
+      <section class="data-section">
+        <h2>🖥 系統控制</h2>
+        <button id="goToFrontendBtn">🏠 返回前台</button>
+        <button id="testApiBtn">🔍 測試系統</button>
+        <button id="refreshAllBtn">🔄 刷新所有</button>
+      </section>
+
+      <!-- 用戶管理 -->
+      <section class="users-section">
+        <h2>👥 用戶資料庫</h2>
+        <div class="user-form">
+          <input type="text" id="new-username" placeholder="輸入用戶名" />
+          <input type="email" id="new-email" placeholder="輸入Email (可留空)" />
+          <select id="new-role">
+            <option value="false">一般用戶</option>
+            <option value="true">管理員</option>
+          </select>
+          <button id="addUserBtn">➕ 新增用戶</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>用戶名</th>
+              <th>Email</th>
+              <th>角色</th>
+              <th>建立時間</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <tr>
+              <td colspan="5">加載中...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 搜尋功能 -->
+      <section class="data-section">
+        <h2>🔍 搜尋用戶記錄</h2>
+        <button id="searchRecordsBtn">🔍 搜尋所有用戶記錄</button>
+      </section>
+
+      <!-- 系統資訊 -->
+      <section class="data-section">
+        <h2>ℹ️ 系統資訊</h2>
+        <div class="system-info">
+          <div class="info-item">
+            總用戶數: <span id="total-users">--</span>
+          </div>
+          <div class="info-item">
+            總交易數: <span id="total-transactions">--</span>
+          </div>
+          <div class="info-item">
+            總月份數: <span id="total-months">--</span>
+          </div>
+          <div class="info-item">
+            今日交易: <span id="today-transactions">--</span>
+          </div>
+          <div class="info-item">運行時間: <span id="uptime">--</span></div>
+          <div class="info-item">
+            當前時間: <span id="current-time">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 系統日誌 -->
+      <section class="data-section">
+        <h2>📜 系統日誌</h2>
+        <button id="refreshLogsBtn">🔄 刷新日誌</button>
+        <div id="server-logs" class="log-box">
+          <div>日誌加載中...</div>
+        </div>
+        <p id="logs-count">日誌數量: 0</p>
+      </section>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

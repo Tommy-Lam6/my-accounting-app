@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>每日消費記錄 - 智能記賬系統</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: linear-gradient(135deg, #e8f4e8 0%, #c3e6c3 100%);
+        padding: 20px;
+        color: #2d5016;
+        letter-spacing: 0.5px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(45, 80, 22, 0.2);
+        border: 3px solid #8a6d3b;
+        position: relative;
+        overflow: hidden;
+      }
+      .container::before {
+        content: "☯";
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+        color: #8a6d3b;
+        opacity: 0.3;
+        transform: rotate(15deg);
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #8a6d3b;
+        position: relative;
+      }
+      .header::after {
+        content: "";
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+        border-radius: 2px;
+      }
+      .header h1 {
+        color: #2d5016;
+        font-size: 32px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        padding-left: 40px;
+      }
+      .header h1::before {
+        content: "道";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 36px;
+        color: #8a6d3b;
+        opacity: 0.8;
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 25px;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid #8a6d3b;
+      }
+      .date-selector,
+      .month-selector {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .date-selector input,
+      .month-selector input {
+        padding: 10px 15px;
+        border: 2px solid #8a6d3b;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: #f9f9f9;
+        transition: all 0.3s ease;
+      }
+      .date-selector input:focus,
+      .month-selector input:focus {
+        outline: none;
+        border-color: #2d5016;
+        background: white;
+        box-shadow: 0 0 8px rgba(45, 80, 22, 0.2);
+      }
+      button {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-weight: 600;
+        box-shadow: 0 4px 8px rgba(45, 80, 22, 0.3);
+        border: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      button:hover {
+        background: linear-gradient(135deg, #4a7c3a 0%, #2d5016 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(45, 80, 22, 0.4);
+      }
+      .btn-secondary {
+        background: linear-gradient(135deg, #8a6d3b 0%, #a9925d 100%);
+      }
+      .btn-secondary:hover {
+        background: linear-gradient(135deg, #a9925d 0%, #8a6d3b 100%);
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .filter-buttons button.active {
+        background: linear-gradient(135deg, #2d5016 0%, #8a6d3b 100%);
+        border: 2px solid #f1f8e9;
+        transform: scale(1.05);
+      }
+
+      /* 統計卡片 */
+      .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #f8fdf8 0%, #f0f9f0 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        border-left: 6px solid;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid #8a6d3b;
+        border-right: 1px solid #8a6d3b;
+        border-bottom: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+      }
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+      .stat-card.income {
+        border-left-color: #2d5016;
+      }
+      .stat-card.fixed {
+        border-left-color: #8a6d3b;
+      }
+      .stat-card.expense {
+        border-left-color: #8b4513;
+      }
+      .stat-card.spending-total {
+        border-left-color: #1565c0;
+      }
+      .stat-card.total {
+        border-left-color: #2d5016;
+      }
+      .stat-card h3 {
+        font-size: 16px;
+        color: #5d4037;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      .stat-card .amount {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2d5016;
+      }
+
+      /* 表格樣式 */
+      .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #8a6d3b;
+      }
+      .transactions-table th,
+      .transactions-table td {
+        border: 1px solid #8a6d3b;
+        padding: 15px;
+        text-align: left;
+        font-size: 16px;
+      }
+      .transactions-table th {
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        font-weight: 600;
+        font-size: 18px;
+        text-align: center;
+      }
+      .transactions-table tr:nth-child(even) {
+        background: rgba(241, 248, 233, 0.5);
+      }
+      .transactions-table tr:hover {
+        background: rgba(232, 245, 232, 0.8);
+        transform: scale(1.01);
+        transition: all 0.2s ease;
+      }
+      .type-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+      }
+      .type-income {
+        background: linear-gradient(135deg, #d4efdf, #27ae60);
+        color: #196f3d;
+        border: 1px solid #27ae60;
+      }
+      .type-fixed {
+        background: linear-gradient(135deg, #fdebd0, #e67e22);
+        color: #a84300;
+        border: 1px solid #e67e22;
+      }
+      .type-expense {
+        background: linear-gradient(135deg, #fadbd8, #e74c3c);
+        color: #922b21;
+        border: 1px solid #e74c3c;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 50px;
+        color: #8a6d3b;
+        font-size: 18px;
+        font-style: italic;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        border: 2px dashed #8a6d3b;
+      }
+      .back-btn {
+        background: linear-gradient(135deg, #8a6d3b 0%, #a9925d 100%);
+        margin-right: 15px;
+      }
+
+      /* 武當派特色元素 */
+      .taoist-divider {
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+        border-radius: 2px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .taoist-divider::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: balanceFlow 3s infinite;
+      }
+
+      @keyframes balanceFlow {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .date-selector,
+        .month-selector {
+          justify-content: space-between;
+        }
+        .transactions-table {
+          font-size: 14px;
+        }
+        .transactions-table th,
+        .transactions-table td {
+          padding: 10px;
+        }
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+        .header h1 {
+          padding-left: 0;
+        }
+        .header h1::before {
+          display: none;
+        }
+        .stats-cards {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* 武當派動畫效果 */
+      @keyframes taoPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .stat-card {
+        animation: taoPulse 4s infinite;
+      }
+
+      .stat-card:hover {
+        animation: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 頁頭 -->
+      <div class="header">
+        <h1>📊 每日消費記錄</h1>
+        <div>
+          <button class="back-btn" onclick="window.location.href='index.html'">
+            ← 返回主頁
+          </button>
+        </div>
+      </div>
+
+      <!-- 控制區域 -->
+      <div class="controls">
+        <div class="date-selector">
+          <label for="report-date">選擇日期：</label>
+          <input type="date" id="report-date" />
+          <button onclick="dailyReport.loadDailyReport()">🔍 查詢日期</button>
+          <button onclick="dailyReport.loadYesterday()" class="btn-secondary">
+            📅 昨日記錄
+          </button>
+          <button onclick="dailyReport.loadToday()" class="btn-secondary">
+            📅 今日記錄
+          </button>
+        </div>
+
+        <div class="month-selector">
+          <label for="report-month">選擇月份：</label>
+          <input type="month" id="report-month" />
+          <button onclick="dailyReport.loadMonthlyReport()">📊 查詢月份</button>
+          <button
+            onclick="dailyReport.loadCurrentMonth()"
+            class="btn-secondary"
+          >
+            📅 本月記錄
+          </button>
+          <button onclick="dailyReport.loadLastMonth()" class="btn-secondary">
+            📅 上月記錄
+          </button>
+        </div>
+
+        <div class="filter-buttons">
+          <button
+            onclick="dailyReport.filterTransactions('all')"
+            class="btn-secondary active"
+          >
+            📋 全部
+          </button>
+          <button
+            onclick="dailyReport.filterTransactions('income')"
+            class="btn-secondary"
+          >
+            💰 收入
+          </button>
+          <button
+            onclick="dailyReport.filterTransactions('fixed_expense')"
+            class="btn-secondary"
+          >
+            🏠 固定開支
+          </button>
+          <button
+            onclick="dailyReport.filterTransactions('expense')"
+            class="btn-secondary"
+          >
+            💸 其他開支
+          </button>
+        </div>
+      </div>
+
+      <!-- 統計卡片 -->
+      <div class="stats-cards">
+        <div class="stat-card income">
+          <h3>💰 當日收入</h3>
+          <div class="amount" id="daily-income">$0.00</div>
+        </div>
+        <div class="stat-card fixed">
+          <h3>🏠 固定開支</h3>
+          <div class="amount" id="daily-fixed">$0.00</div>
+        </div>
+        <div class="stat-card expense">
+          <h3>💸 其他開支</h3>
+          <div class="amount" id="daily-expense">$0.00</div>
+        </div>
+        <div class="stat-card spending-total">
+          <h3>📊 消費總額</h3>
+          <div class="amount" id="daily-spending-total">$0.00</div>
+          <div class="breakdown" style="font-size: 12px; margin-top: 5px">
+            <span style="color: #ffc107"
+              >固定: <span id="fixed-percentage">0%</span></span
+            >
+            |
+            <span style="color: #dc3545"
+              >其他: <span id="expense-percentage">0%</span></span
+            >
+          </div>
+        </div>
+        <div class="stat-card total">
+          <h3>⚖️ 當日結餘</h3>
+          <div class="amount" id="daily-balance">$0.00</div>
+        </div>
+      </div>
+
+      <!-- 交易記錄表格 -->
+      <div id="transactions-container">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>時間</th>
+              <th>類型</th>
+              <th>分類</th>
+              <th>描述</th>
+              <th>金額 (HKD)</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body">
+            <tr>
+              <td colspan="5" class="empty-state">請選擇日期查看記錄</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分頁控制 -->
+      <div
+        style="text-align: center; margin-top: 20px; display: none"
+        id="pagination"
+      >
+        <button onclick="dailyReport.previousDay()">← 前一天</button>
+        <span style="margin: 0 15px" id="current-date-display"></span>
+        <button onclick="dailyReport.nextDay()">後一天 →</button>
+      </div>
+    </div>
+
+    <script>
+      // ==================== 每日報告路由守衛 ====================
+      (function () {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (!currentUser) {
+          window.location.replace("login.html");
+        }
+      })();
+
+      // 監聽返回鍵
+      window.addEventListener("pageshow", function (event) {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (!currentUser) {
+          window.location.replace("login.html");
+        }
+      });
+
+      class DailyReport {
+        constructor() {
+          this.currentDate = new Date();
+          this.currentFilter = "all";
+          this.init();
+        }
+
+        init() {
+          // 設置默認日期為今日
+          this.setDateToInput(new Date());
+          // 加載今日記錄
+          this.loadToday();
+
+          // 檢查登入狀態
+          this.checkLogin();
+        }
+
+        checkLogin() {
+          const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+          if (!currentUser) {
+            alert("請先登入系統！");
+            window.location.href = "login.html";
+            return false;
+          }
+          return true;
+        }
+
+        setDateToInput(date) {
+          const formattedDate = date.toISOString().split("T")[0];
+          document.getElementById("report-date").value = formattedDate;
+          this.currentDate = date;
+        }
+
+        // 加載指定日期的記錄
+        loadDailyReport() {
+          const dateInput = document.getElementById("report-date").value;
+          if (!dateInput) {
+            alert("請選擇日期");
+            return;
+          }
+
+          const selectedDate = new Date(dateInput);
+          this.displayDailyReport(selectedDate);
+        }
+
+        // 加載昨日記錄
+        loadYesterday() {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          this.setDateToInput(yesterday);
+          this.displayDailyReport(yesterday);
+        }
+
+        // 加載今日記錄
+        loadToday() {
+          const today = new Date();
+          this.setDateToInput(today);
+          this.displayDailyReport(today);
+        }
+
+        // 顯示每日報告
+        displayDailyReport(date) {
+          const formattedDate = date.toISOString().split("T")[0];
+          const username =
+            JSON.parse(localStorage.getItem("currentUser"))?.username ||
+            "default";
+
+          let dailyTransactions = [];
+          let dailySummary = null;
+
+          // 首先檢查是否有歸檔數據
+          const archiveKey = `daily-archive-${username}-${formattedDate}`;
+          const archivedData = localStorage.getItem(archiveKey);
+
+          if (archivedData) {
+            // 使用歸檔數據
+            const archive = JSON.parse(archivedData);
+            dailyTransactions = archive.transactions;
+            dailySummary = archive.summary;
+            console.log(`📁 載入歸檔數據: ${formattedDate}`);
+          } else {
+            // 從當前月份數據中查找
+            let allTransactions = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key.startsWith(`transactions-${username}-`)) {
+                const transactions =
+                  JSON.parse(localStorage.getItem(key)) || [];
+                allTransactions = allTransactions.concat(transactions);
+              }
+            }
+            dailyTransactions = allTransactions.filter(
+              (t) => t.date === formattedDate
+            );
+            console.log(`🔍 從當前數據查找: ${formattedDate}`);
+          }
+
+          // 應用篩選
+          if (this.currentFilter !== "all") {
+            dailyTransactions = dailyTransactions.filter(
+              (t) => t.type === this.currentFilter
+            );
+          }
+
+          // 更新統計信息
+          this.updateStats(dailyTransactions, dailySummary);
+
+          // 更新表格
+          this.updateTable(dailyTransactions, formattedDate);
+
+          // 更新分頁顯示
+          this.updatePagination(date);
+
+          // 顯示數據來源提示
+          this.showDataSource(!!archivedData, formattedDate);
+        }
+
+        // 更新統計信息
+        updateStats(transactions, summary = null) {
+          let totalIncome, totalFixed, totalExpense, totalSpending, balance;
+
+          if (summary) {
+            // 使用歸檔的統計數據
+            totalIncome = summary.totalIncome;
+            totalFixed = summary.totalFixed;
+            totalExpense = summary.totalExpense;
+            totalSpending = summary.totalSpending;
+            balance = summary.balance;
+          } else {
+            // 實時計算統計數據
+            totalIncome = transactions
+              .filter((t) => t.type === "income")
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            totalFixed = transactions
+              .filter((t) => t.type === "fixed_expense")
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            totalExpense = transactions
+              .filter((t) => t.type === "expense")
+              .reduce((sum, t) => sum + t.amount, 0);
+
+            totalSpending = totalFixed + totalExpense;
+            balance = totalIncome - totalSpending;
+          }
+
+          // 計算百分比
+          let fixedPercentage = 0;
+          let expensePercentage = 0;
+
+          if (totalSpending > 0) {
+            fixedPercentage = Math.round((totalFixed / totalSpending) * 100);
+            expensePercentage = Math.round(
+              (totalExpense / totalSpending) * 100
+            );
+          }
+
+          // 更新顯示
+          document.getElementById(
+            "daily-income"
+          ).textContent = `$${totalIncome.toFixed(2)}`;
+          document.getElementById(
+            "daily-fixed"
+          ).textContent = `$${totalFixed.toFixed(2)}`;
+          document.getElementById(
+            "daily-expense"
+          ).textContent = `$${totalExpense.toFixed(2)}`;
+          document.getElementById(
+            "daily-spending-total"
+          ).textContent = `$${totalSpending.toFixed(2)}`;
+          document.getElementById(
+            "daily-balance"
+          ).textContent = `$${balance.toFixed(2)}`;
+
+          // 更新百分比
+          document.getElementById(
+            "fixed-percentage"
+          ).textContent = `${fixedPercentage}%`;
+          document.getElementById(
+            "expense-percentage"
+          ).textContent = `${expensePercentage}%`;
+
+          // 根據結餘設置顏色
+          const balanceElement = document.getElementById("daily-balance");
+          if (balance > 0) {
+            balanceElement.style.color = "#28a745";
+          } else if (balance < 0) {
+            balanceElement.style.color = "#dc3545";
+          } else {
+            balanceElement.style.color = "#666";
+          }
+
+          // 消費總額卡片嘅顏色設置
+          const spendingElement = document.getElementById(
+            "daily-spending-total"
+          );
+          if (totalSpending > 0) {
+            spendingElement.style.color = "#6f42c1";
+          } else {
+            spendingElement.style.color = "#666";
+          }
+        }
+
+        // 更新表格
+        updateTable(transactions, date) {
+          const tbody = document.getElementById("transactions-body");
+
+          if (transactions.length === 0) {
+            tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                📝 ${date} 沒有交易記錄
+                            </td>
+                        </tr>
+                    `;
+            return;
+          }
+
+          // 按時間排序（最新的在前面）
+          transactions.sort((a, b) => {
+            // 如果有時間信息就按時間排序，否則按ID排序
+            if (a.timestamp && b.timestamp) {
+              return new Date(b.timestamp) - new Date(a.timestamp);
+            }
+            return b.id - a.id;
+          });
+
+          tbody.innerHTML = transactions
+            .map((transaction) => {
+              const typeText =
+                {
+                  income: "💰 收入",
+                  fixed_expense: "🏠 固定開支",
+                  expense: "💸 其他開支",
+                }[transaction.type] || transaction.type;
+
+              const typeClass =
+                {
+                  income: "type-income",
+                  fixed_expense: "type-fixed",
+                  expense: "type-expense",
+                }[transaction.type] || "";
+
+              // 格式化時間顯示（如果有的話）
+              let timeDisplay = transaction.date;
+              if (transaction.timestamp) {
+                const time = new Date(transaction.timestamp).toLocaleTimeString(
+                  "zh-HK"
+                );
+                timeDisplay = `${transaction.date} ${time}`;
+              }
+
+              return `
+                        <tr>
+                            <td>${timeDisplay}</td>
+                            <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                            <td>${transaction.category}</td>
+                            <td>${transaction.description}</td>
+                            <td style="font-weight: bold; color: ${
+                              transaction.type === "income"
+                                ? "#28a745"
+                                : "#dc3545"
+                            }">
+                                ${
+                                  transaction.type === "income" ? "+" : "-"
+                                }$${transaction.amount.toFixed(2)}
+                            </td>
+                        </tr>
+                    `;
+            })
+            .join("");
+        }
+
+        // 更新分頁控制
+        updatePagination(date) {
+          const pagination = document.getElementById("pagination");
+          const display = document.getElementById("current-date-display");
+
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+
+          // 如果選擇的日期不是今天，顯示分頁控制
+          if (date.toDateString() !== today.toDateString()) {
+            pagination.style.display = "block";
+            display.textContent = date.toLocaleDateString("zh-HK", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "long",
+            });
+          } else {
+            pagination.style.display = "none";
+          }
+        }
+
+        // 前一天
+        previousDay() {
+          const newDate = new Date(this.currentDate);
+          newDate.setDate(newDate.getDate() - 1);
+          this.setDateToInput(newDate);
+          this.displayDailyReport(newDate);
+        }
+
+        // 後一天
+        nextDay() {
+          const newDate = new Date(this.currentDate);
+          newDate.setDate(newDate.getDate() + 1);
+
+          // 不能選擇未來的日期
+          const today = new Date();
+          if (newDate <= today) {
+            this.setDateToInput(newDate);
+            this.displayDailyReport(newDate);
+          } else {
+            alert("不能查看未來的記錄");
+          }
+        }
+
+        // 顯示數據來源提示
+        showDataSource(isArchived, date) {
+          // 移除現有提示
+          const existingHint = document.getElementById("data-source-hint");
+          if (existingHint) {
+            existingHint.remove();
+          }
+
+          const hint = document.createElement("div");
+          hint.id = "data-source-hint";
+          hint.style.cssText = `
+                    text-align: center;
+                    margin: 10px 0;
+                    padding: 8px;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    background: ${isArchived ? "#d4edda" : "#fff3cd"};
+                    color: ${isArchived ? "#155724" : "#856404"};
+                    border: 1px solid ${isArchived ? "#c3e6cb" : "#ffeaa7"};
+                `;
+
+          if (isArchived) {
+            hint.innerHTML = `📁 顯示歸檔數據 (${date}) - 此日期已完成日結`;
+          } else {
+            hint.innerHTML = `🔍 顯示當前數據 (${date}) - 此日期尚未日結`;
+          }
+
+          // 插入到控制區域後面
+          const controls = document.querySelector(".controls");
+          controls.parentNode.insertBefore(hint, controls.nextSibling);
+        }
+
+        // 篩選交易記錄
+        filterTransactions(filterType) {
+          this.currentFilter = filterType;
+
+          // 更新按鈕狀態
+          document.querySelectorAll(".filter-buttons button").forEach((btn) => {
+            btn.classList.remove("active");
+          });
+          event.target.classList.add("active");
+
+          // 重新顯示當前日期嘅記錄（會自動應用篩選）
+          this.displayDailyReport(this.currentDate);
+        }
+
+        // 加載月份報告
+        loadMonthlyReport() {
+          const monthInput = document.getElementById("report-month").value;
+          if (!monthInput) {
+            alert("請選擇月份");
+            return;
+          }
+
+          this.displayMonthlyReport(monthInput);
+        }
+
+        // 加載本月記錄
+        loadCurrentMonth() {
+          const now = new Date();
+          const currentMonth = `${now.getFullYear()}-${String(
+            now.getMonth() + 1
+          ).padStart(2, "0")}`;
+          document.getElementById("report-month").value = currentMonth;
+          this.displayMonthlyReport(currentMonth);
+        }
+
+        // 加載上月記錄
+        loadLastMonth() {
+          const now = new Date();
+          now.setMonth(now.getMonth() - 1);
+          const lastMonth = `${now.getFullYear()}-${String(
+            now.getMonth() + 1
+          ).padStart(2, "0")}`;
+          document.getElementById("report-month").value = lastMonth;
+          this.displayMonthlyReport(lastMonth);
+        }
+
+        // 顯示月份報告
+        displayMonthlyReport(month) {
+          const username =
+            JSON.parse(localStorage.getItem("currentUser"))?.username ||
+            "default";
+
+          // 獲取所有交易記錄
+          let allTransactions = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(`transactions-${username}-`)) {
+              const transactions = JSON.parse(localStorage.getItem(key)) || [];
+              allTransactions = allTransactions.concat(transactions);
+            }
+          }
+
+          // 過濾指定月份的記錄
+          const monthlyTransactions = allTransactions.filter((t) =>
+            t.date.startsWith(month)
+          );
+
+          // 按日期分組
+          const transactionsByDate = {};
+          monthlyTransactions.forEach((transaction) => {
+            if (!transactionsByDate[transaction.date]) {
+              transactionsByDate[transaction.date] = [];
+            }
+            transactionsByDate[transaction.date].push(transaction);
+          });
+
+          // 更新月份統計信息
+          this.updateMonthlyStats(monthlyTransactions, month);
+
+          // 更新月份表格
+          this.updateMonthlyTable(transactionsByDate, month);
+
+          // 隱藏分頁控制
+          document.getElementById("pagination").style.display = "none";
+
+          // 顯示數據來源提示
+          this.showDataSource(false, `${month} 月份`);
+        }
+
+        // 更新月份統計信息
+        updateMonthlyStats(transactions, month) {
+          const totalIncome = transactions
+            .filter((t) => t.type === "income")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const totalFixed = transactions
+            .filter((t) => t.type === "fixed_expense")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const totalExpense = transactions
+            .filter((t) => t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const totalSpending = totalFixed + totalExpense;
+          const balance = totalIncome - totalSpending;
+
+          // 計算每日平均
+          const uniqueDates = [...new Set(transactions.map((t) => t.date))];
+          const daysCount = uniqueDates.length;
+
+          const avgIncome = daysCount > 0 ? totalIncome / daysCount : 0;
+          const avgSpending = daysCount > 0 ? totalSpending / daysCount : 0;
+
+          // 計算百分比
+          let fixedPercentage = 0;
+          let expensePercentage = 0;
+
+          if (totalSpending > 0) {
+            fixedPercentage = Math.round((totalFixed / totalSpending) * 100);
+            expensePercentage = Math.round(
+              (totalExpense / totalSpending) * 100
+            );
+          }
+
+          // 更新顯示
+          document.getElementById(
+            "daily-income"
+          ).textContent = `$${totalIncome.toFixed(2)}`;
+          document.getElementById(
+            "daily-fixed"
+          ).textContent = `$${totalFixed.toFixed(2)}`;
+          document.getElementById(
+            "daily-expense"
+          ).textContent = `$${totalExpense.toFixed(2)}`;
+          document.getElementById(
+            "daily-spending-total"
+          ).textContent = `$${totalSpending.toFixed(2)}`;
+          document.getElementById(
+            "daily-balance"
+          ).textContent = `$${balance.toFixed(2)}`;
+
+          // 更新百分比
+          document.getElementById(
+            "fixed-percentage"
+          ).textContent = `${fixedPercentage}%`;
+          document.getElementById(
+            "expense-percentage"
+          ).textContent = `${expensePercentage}%`;
+
+          // 添加月份統計信息
+          const existingMonthStats = document.getElementById("monthly-stats");
+          if (existingMonthStats) {
+            existingMonthStats.remove();
+          }
+
+          const monthStats = document.createElement("div");
+          monthStats.id = "monthly-stats";
+          monthStats.style.cssText = `
+                    background: #e8f4fd;
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin: 15px 0;
+                    border-left: 4px solid #2196F3;
+                `;
+          monthStats.innerHTML = `
+                    <h3 style="margin: 0 0 10px 0; color: #1976D2;">📈 ${month} 月份統計</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <div>
+                            <strong>交易天數:</strong> ${daysCount} 天
+                        </div>
+                        <div>
+                            <strong>總交易數:</strong> ${transactions.length} 筆
+                        </div>
+                        <div>
+                            <strong>日均收入:</strong> $${avgIncome.toFixed(2)}
+                        </div>
+                        <div>
+                            <strong>日均支出:</strong> $${avgSpending.toFixed(
+                              2
+                            )}
+                        </div>
+                    </div>
+                `;
+
+          // 插入到統計卡片後面
+          const statsCards = document.querySelector(".stats-cards");
+          statsCards.parentNode.insertBefore(
+            monthStats,
+            statsCards.nextSibling
+          );
+        }
+
+        // 更新月份表格
+        updateMonthlyTable(transactionsByDate, month) {
+          const tbody = document.getElementById("transactions-body");
+
+          const dates = Object.keys(transactionsByDate).sort().reverse(); // 日期倒序排列
+
+          if (dates.length === 0) {
+            tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                📝 ${month} 月份沒有交易記錄
+                            </td>
+                        </tr>
+                    `;
+            return;
+          }
+
+          let tableHTML = "";
+
+          dates.forEach((date) => {
+            const dayTransactions = transactionsByDate[date];
+            const dayIncome = dayTransactions
+              .filter((t) => t.type === "income")
+              .reduce((sum, t) => sum + t.amount, 0);
+            const dayFixed = dayTransactions
+              .filter((t) => t.type === "fixed_expense")
+              .reduce((sum, t) => sum + t.amount, 0);
+            const dayExpense = dayTransactions
+              .filter((t) => t.type === "expense")
+              .reduce((sum, t) => sum + t.amount, 0);
+            const dayTotal = dayFixed + dayExpense;
+            const dayBalance = dayIncome - dayTotal;
+
+            // 日期標題行
+            tableHTML += `
+                        <tr style="background: #f1f8ff;">
+                            <td colspan="5" style="font-weight: bold; padding: 12px;">
+                                📅 ${date} 
+                                <span style="float: right; font-size: 14px; font-weight: normal;">
+                                    收入: <span style="color: #28a745;">$${dayIncome.toFixed(
+                                      2
+                                    )}</span> | 
+                                    支出: <span style="color: #dc3545;">$${dayTotal.toFixed(
+                                      2
+                                    )}</span> | 
+                                    結餘: <span style="color: ${
+                                      dayBalance >= 0 ? "#28a745" : "#dc3545"
+                                    }">$${dayBalance.toFixed(2)}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+
+            // 該日期嘅交易記錄
+            dayTransactions.forEach((transaction) => {
+              const typeText =
+                {
+                  income: "💰 收入",
+                  fixed_expense: "🏠 固定開支",
+                  expense: "💸 其他開支",
+                }[transaction.type] || transaction.type;
+
+              const typeClass =
+                {
+                  income: "type-income",
+                  fixed_expense: "type-fixed",
+                  expense: "type-expense",
+                }[transaction.type] || "";
+
+              let timeDisplay = transaction.date;
+              if (transaction.timestamp) {
+                const time = new Date(transaction.timestamp).toLocaleTimeString(
+                  "zh-HK"
+                );
+                timeDisplay = `${transaction.date} ${time}`;
+              }
+
+              tableHTML += `
+                            <tr>
+                                <td>${timeDisplay}</td>
+                                <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                                <td>${transaction.category}</td>
+                                <td>${transaction.description}</td>
+                                <td style="font-weight: bold; color: ${
+                                  transaction.type === "income"
+                                    ? "#28a745"
+                                    : "#dc3545"
+                                }">
+                                    ${
+                                      transaction.type === "income" ? "+" : "-"
+                                    }$${transaction.amount.toFixed(2)}
+                                </td>
+                            </tr>
+                        `;
+            });
+
+            // 添加空行分隔
+            tableHTML += `<tr style="height: 10px;"><td colspan="5"></td></tr>`;
+          });
+
+          tbody.innerHTML = tableHTML;
+        }
+      }
+
+      // 初始化每日報告
+      const dailyReport = new DailyReport();
+    </script>
+  </body>
+</html>

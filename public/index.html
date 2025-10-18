@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能記賬系統 - 用戶端</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- 頁頭 -->
+      <header class="main-header">
+        <div class="header-content">
+          <h1>💰 智能記賬系統</h1>
+          <div class="header-controls">
+            <div class="month-info">
+              <span id="current-month">正在加載...</span>
+              <div
+                class="spending-alert"
+                id="spending-alert"
+                style="display: none"
+              >
+                ⚠️ 即將達到消費限額！
+              </div>
+            </div>
+            <div class="user-info" id="user-info" style="display: none">
+              <span id="username-display"></span>
+              <button onclick="accountingApp.logout()" class="btn-secondary">
+                🚪 登出
+              </button>
+            </div>
+            <div class="action-buttons">
+    <button onclick="accountingApp.resetAllData()" class="btn-danger">🔄 全部重置</button>
+    <button onclick="accountingApp.refreshData()" class="btn-secondary">🔄 刷新數據</button>
+    <button onclick="accountingApp.goToDailyReport()" class="btn-primary">📊 每日報告</button>
+    <button onclick="accountingApp.manualDailyReset()" class="btn-secondary">📊 手動日結</button>
+    <!-- 添加以下新按鈕 -->
+    <button onclick="accountingApp.manualMonthlyReset()" class="btn-secondary">📅 手動月結</button>
+    <button onclick="accountingApp.viewMonthlyReports()" class="btn-secondary">📚 查看月報</button>
+    <button onclick="accountingApp.goToAdminPanel()" class="btn-primary" id="admin-panel-btn" style="display: none;">管理員管理</button>
+</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 財務摘要 -->
+      <section class="summary-section">
+        <div class="summary-cards">
+          <div class="summary-card income">
+            <div class="card-icon">💰</div>
+            <div class="card-content">
+              <h3>本月收入</h3>
+              <p id="total-income">$0.00</p>
+            </div>
+          </div>
+          <div class="summary-card fixed-expense">
+            <div class="card-icon">🏠</div>
+            <div class="card-content">
+              <h3>固定開支</h3>
+              <p id="total-fixed-expense">$0.00</p>
+            </div>
+          </div>
+          <div class="summary-card expense">
+            <div class="card-icon">💸</div>
+            <div class="card-content">
+              <h3>其他開支</h3>
+              <p id="total-expense">$0.00</p>
+            </div>
+          </div>
+          <div class="summary-card balance">
+            <div class="card-icon">⚖️</div>
+            <div class="card-content">
+              <h3>本月結餘</h3>
+              <p id="balance">$0.00</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 消費限額進度條 -->
+        <div class="spending-limit-section">
+    <div class="limit-header">
+        <h3>本月消費限額</h3>
+        <div>
+            <button onclick="accountingApp.editSpendingLimit()" class="edit-limit-btn">
+                ✏️ 設置
+            </button>
+            <button onclick="accountingApp.showSpendingLimitDetails()" class="edit-limit-btn">
+                📊 詳情
+            </button>
+        </div>
+    </div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="spending-progress"></div>
+            </div>
+            <div class="progress-text">
+              <span id="spent-amount">$0</span>
+              <span>/</span>
+              <span id="total-limit">$0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 添加交易 -->
+      <section class="add-transaction-section">
+        <h2>📝 添加新交易</h2>
+        <form
+          id="transaction-form"
+          onsubmit="accountingApp.addTransaction(event)"
+        >
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="date">日期</label>
+              <input type="date" id="date" required />
+            </div>
+            <div class="form-group">
+              <label for="description">項目描述</label>
+              <input
+                type="text"
+                id="description"
+                placeholder="例如：午餐、薪資"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="amount">金額 (HKD)</label>
+              <input
+                type="number"
+                id="amount"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="type">類型</label>
+              <select
+                id="type"
+                required
+                onchange="accountingApp.updateCategoryOptions()"
+              >
+                <option value="income">💰 收入</option>
+                <option value="fixed_expense">🏠 固定開支</option>
+                <option value="expense">💸 其他開支</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="category">分類</label>
+              <select id="category" required></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">➕ 添加交易</button>
+            <button
+              type="button"
+              onclick="accountingApp.resetForm()"
+              class="btn-secondary"
+            >
+              🔄 重置表單
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 交易記錄 -->
+      <section class="transactions-section">
+        <h2>📋 交易記錄</h2>
+
+        <!-- 收入記錄 -->
+        <div class="transaction-category">
+          <h3 class="category-header income">💰 收入記錄</h3>
+          <div class="transaction-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>描述</th>
+                  <th>分類</th>
+                  <th>金額</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="income-transactions"></tbody>
+            </table>
+            <div id="empty-income" class="empty-state">暫無收入記錄</div>
+          </div>
+        </div>
+
+        <!-- 固定開支記錄 -->
+        <div class="transaction-category">
+          <h3 class="category-header fixed">🏠 固定開支記錄</h3>
+          <div class="transaction-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>描述</th>
+                  <th>分類</th>
+                  <th>金額</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="fixed-transactions"></tbody>
+            </table>
+            <div id="empty-fixed" class="empty-state">暫無固定開支記錄</div>
+          </div>
+        </div>
+
+        <!-- 其他開支記錄 -->
+        <div class="transaction-category">
+          <h3 class="category-header expense">💸 其他開支記錄</h3>
+          <div class="transaction-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>描述</th>
+                  <th>分類</th>
+                  <th>金額</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="expense-transactions"></tbody>
+            </table>
+            <div id="empty-expense" class="empty-state">暫無其他開支記錄</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 搜索記錄模態框 -->
+      <div id="search-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>🔍 搜索記錄</h3>
+            <span class="close" onclick="accountingApp.closeSearch()"
+              >&times;</span
+            >
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="search-year">年份</label>
+              <input
+                type="number"
+                id="search-year"
+                placeholder="例如：2025"
+                min="2000"
+                max="2100"
+              />
+            </div>
+            <div class="form-group">
+              <label for="search-month">月份</label>
+              <input
+                type="number"
+                id="search-month"
+                placeholder="1-12"
+                min="1"
+                max="12"
+              />
+            </div>
+            <div class="form-actions">
+              <button
+                onclick="accountingApp.searchRecords()"
+                class="btn-primary"
+              >
+                🔍 搜索
+              </button>
+              <button
+                onclick="accountingApp.closeSearch()"
+                class="btn-secondary"
+              >
+                取消
+              </button>
+            </div>
+            <div id="search-results" style="margin-top: 15px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 消息提示 -->
+      <div id="message-toast" class="toast"></div>
+
+      <!-- 消費限額設置模態框 -->
+      <div id="limit-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>設置消費限額</h3>
+            <span class="close" onclick="accountingApp.closeLimitModal()"
+              >&times;</span
+            >
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="limit-amount">每月消費限額 (HKD)</label>
+              <input
+                type="number"
+                id="limit-amount"
+                step="100"
+                min="0"
+                placeholder="例如：10000"
+              />
+            </div>
+            <p class="help-text">設置0表示不限制消費</p>
+          </div>
+          <div class="modal-footer">
+    <button onclick="accountingApp.saveSpendingLimit()" class="btn-primary">
+        💾 保存
+    </button>
+    <button onclick="accountingApp.resetSpendingLimit()" class="btn-danger">
+        🔄 重置限額
+    </button>
+    <button onclick="accountingApp.closeLimitModal()" class="btn-secondary">
+        取消
+    </button>
+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 引用外部 JS -->
+      <script src="script.js"></script>
+    </div>
+  </body>
+</html>

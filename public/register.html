@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能記賬系統 - 註冊</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #2d5016;
+        letter-spacing: 0.5px;
+      }
+      .register-container {
+        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(45, 80, 22, 0.3);
+        width: 100%;
+        max-width: 420px;
+        border: 3px solid #8a6d3b;
+        position: relative;
+        overflow: hidden;
+      }
+      .register-container::before {
+        content: "☯";
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 32px;
+        color: #8a6d3b;
+        opacity: 0.3;
+        transform: rotate(15deg);
+      }
+      .register-container::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+      }
+      .register-header {
+        text-align: center;
+        margin-bottom: 35px;
+        position: relative;
+      }
+      .register-header::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+        border-radius: 2px;
+      }
+      .register-header h1 {
+        color: #2d5016;
+        font-size: 32px;
+        margin-bottom: 12px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      .register-header p {
+        color: #5d4037;
+        font-size: 16px;
+        font-style: italic;
+      }
+      .form-group {
+        margin-bottom: 25px;
+        position: relative;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #2d5016;
+        font-weight: 600;
+        font-size: 16px;
+        padding-left: 5px;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #8a6d3b;
+        border-radius: 10px;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: #f9f9f9;
+        transition: all 0.3s ease;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: #2d5016;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+        transform: translateY(-2px);
+      }
+      .register-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(45, 80, 22, 0.3);
+        border: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .register-btn:hover {
+        background: linear-gradient(135deg, #4a7c3a 0%, #2d5016 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(45, 80, 22, 0.4);
+      }
+      .register-btn:active {
+        transform: translateY(-1px);
+      }
+      .links {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(138, 109, 59, 0.3);
+      }
+      .links a {
+        color: #8a6d3b;
+        text-decoration: none;
+        margin: 0 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      .links a::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #2d5016;
+        transition: width 0.3s ease;
+      }
+      .links a:hover {
+        color: #2d5016;
+      }
+      .links a:hover::after {
+        width: 100%;
+      }
+      .error-message,
+      .success-message {
+        text-align: center;
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 8px;
+        display: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .error-message {
+        background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+        color: #922b21;
+        border: 1px solid #e74c3c;
+      }
+      .success-message {
+        background: linear-gradient(135deg, #d4efdf 0%, #a9dfbf 100%);
+        color: #196f3d;
+        border: 1px solid #27ae60;
+      }
+
+      /* 武當派特色動畫 */
+      @keyframes taoFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .register-container {
+        animation: taoFloat 6s ease-in-out infinite;
+      }
+
+      /* 陰陽平衡指示器 */
+      .balance-indicator {
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+        border-radius: 2px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .balance-indicator::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: balanceFlow 3s infinite;
+      }
+
+      @keyframes balanceFlow {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      /* 密碼強度指示器 */
+      .password-strength {
+        margin-top: 10px;
+        height: 6px;
+        background: #e0e0e0;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+
+      .strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s ease;
+        border-radius: 3px;
+      }
+
+      .strength-weak {
+        background: linear-gradient(90deg, #e74c3c, #f39c12);
+      }
+
+      .strength-medium {
+        background: linear-gradient(90deg, #f39c12, #f1c40f);
+      }
+
+      .strength-strong {
+        background: linear-gradient(90deg, #f1c40f, #2ecc71);
+      }
+
+      .strength-very-strong {
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 480px) {
+        .register-container {
+          padding: 30px 20px;
+        }
+
+        .register-header h1 {
+          font-size: 28px;
+        }
+
+        .form-group input {
+          padding: 12px 15px;
+        }
+
+        .register-btn {
+          padding: 14px;
+        }
+      }
+
+      /* 表單驗證樣式 */
+      .form-group.valid input {
+        border-color: #27ae60;
+        background: rgba(39, 174, 96, 0.05);
+      }
+
+      .form-group.invalid input {
+        border-color: #e74c3c;
+        background: rgba(231, 76, 60, 0.05);
+      }
+
+      .validation-message {
+        font-size: 14px;
+        margin-top: 5px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: none;
+      }
+
+      .validation-message.valid {
+        color: #27ae60;
+        background: rgba(39, 174, 96, 0.1);
+        display: block;
+      }
+
+      .validation-message.invalid {
+        color: #e74c3c;
+        background: rgba(231, 76, 60, 0.1);
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <div class="register-header">
+        <h1>📝 用戶註冊</h1>
+        <p>創建您的新帳戶</p>
+      </div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="username">用戶名稱</label>
+          <input
+            type="text"
+            id="username"
+            required
+            placeholder="輸入用戶名稱 (至少3位)"
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">電子郵箱 (可選)</label>
+          <input type="email" id="email" placeholder="輸入電子郵箱" />
+        </div>
+        <div class="form-group">
+          <label for="password">密碼</label>
+          <input
+            type="password"
+            id="password"
+            required
+            placeholder="輸入密碼 (至少6位)"
+          />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">確認密碼</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            required
+            placeholder="再次輸入密碼"
+          />
+        </div>
+        <button type="submit" class="register-btn">🚀 註冊帳戶</button>
+      </form>
+
+      <div class="links">
+        <a href="login.html">返回登入</a>
+      </div>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+    </div>
+
+    <script>
+      // 如果已登入，直接跳轉到主頁
+      window.addEventListener("load", function () {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (currentUser) {
+          window.location.href = "index.html";
+        }
+      });
+
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+          const error = document.getElementById("errorMessage");
+          const success = document.getElementById("successMessage");
+          error.style.display = "none";
+          success.style.display = "none";
+
+          // 前端驗證
+          if (password !== confirmPassword) {
+            error.textContent = "❌ 兩次輸入的密碼不一致";
+            error.style.display = "block";
+            return;
+          }
+
+          try {
+            const response = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, email, password }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              // 自動登入
+              localStorage.setItem("currentUser", JSON.stringify(result.user));
+              success.textContent = "✅ " + result.message + " 跳轉中...";
+              success.style.display = "block";
+              setTimeout(() => (window.location.href = "index.html"), 2000);
+            } else {
+              error.textContent = "❌ " + result.error;
+              error.style.display = "block";
+            }
+          } catch (error) {
+            error.textContent = "❌ 註冊失敗，請稍後再試";
+            error.style.display = "block";
+          }
+        });
+    </script>
+  </body>
+</html>

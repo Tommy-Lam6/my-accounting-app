@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能記賬系統 - 登入</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #2d5016;
+        letter-spacing: 0.5px;
+      }
+      .login-container {
+        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(45, 80, 22, 0.3);
+        width: 100%;
+        max-width: 420px;
+        border: 3px solid #8a6d3b;
+        position: relative;
+        overflow: hidden;
+      }
+      .login-container::before {
+        content: "☯";
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 32px;
+        color: #8a6d3b;
+        opacity: 0.3;
+        transform: rotate(15deg);
+      }
+      .login-container::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+      }
+      .login-header {
+        text-align: center;
+        margin-bottom: 35px;
+        position: relative;
+      }
+      .login-header::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b);
+        border-radius: 2px;
+      }
+      .login-header h1 {
+        color: #2d5016;
+        font-size: 32px;
+        margin-bottom: 12px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      .login-header p {
+        color: #5d4037;
+        font-size: 16px;
+        font-style: italic;
+      }
+      .form-group {
+        margin-bottom: 25px;
+        position: relative;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #2d5016;
+        font-weight: 600;
+        font-size: 16px;
+        padding-left: 5px;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #8a6d3b;
+        border-radius: 10px;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: #f9f9f9;
+        transition: all 0.3s ease;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: #2d5016;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+        transform: translateY(-2px);
+      }
+      .login-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(45, 80, 22, 0.3);
+        border: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .login-btn:hover {
+        background: linear-gradient(135deg, #4a7c3a 0%, #2d5016 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(45, 80, 22, 0.4);
+      }
+      .login-btn:active {
+        transform: translateY(-1px);
+      }
+      .links {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(138, 109, 59, 0.3);
+      }
+      .links a {
+        color: #8a6d3b;
+        text-decoration: none;
+        margin: 0 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      .links a::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #2d5016;
+        transition: width 0.3s ease;
+      }
+      .links a:hover {
+        color: #2d5016;
+      }
+      .links a:hover::after {
+        width: 100%;
+      }
+      .error-message,
+      .success-message {
+        text-align: center;
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 8px;
+        display: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .error-message {
+        background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+        color: #922b21;
+        border: 1px solid #e74c3c;
+      }
+      .success-message {
+        background: linear-gradient(135deg, #d4efdf 0%, #a9dfbf 100%);
+        color: #196f3d;
+        border: 1px solid #27ae60;
+      }
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 99;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(45, 80, 22, 0.8);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 420px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border: 3px solid #8a6d3b;
+        position: relative;
+      }
+      .modal-content::before {
+        content: "道";
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 24px;
+        color: #8a6d3b;
+        opacity: 0.3;
+      }
+      .modal-content h2 {
+        margin-bottom: 20px;
+        color: #2d5016;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        border-bottom: 2px solid #8a6d3b;
+        padding-bottom: 10px;
+      }
+      .modal-content input {
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 20px;
+        border: 2px solid #8a6d3b;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        background: #f9f9f9;
+        transition: all 0.3s ease;
+      }
+      .modal-content input:focus {
+        outline: none;
+        border-color: #2d5016;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+      }
+      .modal-content button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        color: #f1f8e9;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: "DFKai-SB", "標楷體", "Microsoft JhengHei", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+        border: 1px solid #8a6d3b;
+        transition: all 0.3s ease;
+      }
+      .modal-content button:hover {
+        background: linear-gradient(135deg, #4a7c3a 0%, #2d5016 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(45, 80, 22, 0.4);
+      }
+
+      /* 武當派特色動畫 */
+      @keyframes taoFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .login-container {
+        animation: taoFloat 6s ease-in-out infinite;
+      }
+
+      /* 陰陽平衡指示器 */
+      .balance-indicator {
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #2d5016, #8a6d3b, #2d5016);
+        border-radius: 2px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .balance-indicator::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: balanceFlow 3s infinite;
+      }
+
+      @keyframes balanceFlow {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 30px 20px;
+        }
+
+        .login-header h1 {
+          font-size: 28px;
+        }
+
+        .form-group input {
+          padding: 12px 15px;
+        }
+
+        .login-btn {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <h1>🔐 用戶登入</h1>
+        <p>請輸入您的帳戶資訊</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">用戶名稱</label>
+          <input
+            type="text"
+            id="username"
+            required
+            placeholder="輸入用戶名稱"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">密碼</label>
+          <input
+            type="password"
+            id="password"
+            required
+            placeholder="輸入密碼"
+          />
+        </div>
+        <button type="submit" class="login-btn">🚀 登入系統</button>
+      </form>
+
+      <div class="links">
+        <a href="register.html">立即註冊</a> |
+        <a href="#" id="forgotLink">忘記用戶名稱或密碼？</a>
+      </div>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+    </div>
+
+    <!-- 忘記帳戶信息 Modal -->
+    <div id="forgotAccountModal" class="modal">
+      <div class="modal-content">
+        <h2>🔑 忘記用戶名稱或密碼</h2>
+        <p style="margin-bottom: 15px; color: #666; font-size: 14px">
+          請輸入您的註冊電子郵箱，我們將發送帳戶信息到您的郵箱。
+        </p>
+        <input type="email" id="recoveryEmail" placeholder="輸入註冊的 Email" />
+        <button id="recoverAccountBtn">📧 發送恢復郵件</button>
+        <button
+          onclick="document.getElementById('forgotAccountModal').style.display='none'"
+          style="margin-top: 10px; background: #aaa"
+        >
+          取消
+        </button>
+        <p id="recoveryMsg" style="margin-top: 10px"></p>
+
+        <div
+          style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+          "
+        >
+          <h4 style="margin: 0 0 10px 0; color: #333">👨‍💼 聯繫管理員</h4>
+          <p style="font-size: 13px; color: #555; margin: 5px 0">
+            如需立即重設密碼或其他協助，請聯繫系統管理員：
+          </p>
+          <button
+            id="contactAdminBtn"
+            style="background: #28a745; margin-top: 8px"
+          >
+            📞 聯繫管理員
+          </button>
+          <div
+            id="adminContactInfo"
+            style="
+              display: none;
+              margin-top: 10px;
+              padding: 8px;
+              background: white;
+              border-radius: 3px;
+            "
+          >
+            <p style="margin: 5px 0; font-size: 12px">
+              <strong>管理員聯繫方式：</strong><br />
+              📧 郵箱: admin@system.com<br />
+              🔑 請提供您的用戶名稱和註冊郵箱
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 如果已登入，直接跳轉到主頁
+      window.addEventListener("load", function () {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (currentUser) {
+          window.location.href = "index.html";
+        }
+      });
+
+      // 登入邏輯 - 使用後端API驗證
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
+          const error = document.getElementById("errorMessage");
+          const success = document.getElementById("successMessage");
+          error.style.display = "none";
+          success.style.display = "none";
+
+          try {
+            const response = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              // 儲存用戶信息到localStorage
+              localStorage.setItem("currentUser", JSON.stringify(result.user));
+              success.textContent = "✅ 登入成功！跳轉中...";
+              success.style.display = "block";
+              setTimeout(() => (window.location.href = "index.html"), 1000);
+            } else {
+              error.textContent = "❌ " + result.error;
+              error.style.display = "block";
+            }
+          } catch (error) {
+            error.textContent = "❌ 登入失敗，請稍後再試";
+            error.style.display = "block";
+          }
+        });
+
+      // 打開忘記帳戶 Modal
+      document.getElementById("forgotLink").onclick = (e) => {
+        e.preventDefault();
+        document.getElementById("forgotAccountModal").style.display = "flex";
+        document.getElementById("recoveryEmail").value = "";
+        document.getElementById("recoveryMsg").textContent = "";
+      };
+
+      // 聯繫管理員功能
+      document.getElementById("contactAdminBtn").onclick = function () {
+        const contactInfo = document.getElementById("adminContactInfo");
+        if (contactInfo.style.display === "none") {
+          contactInfo.style.display = "block";
+          this.textContent = "📞 隱藏聯繫方式";
+        } else {
+          contactInfo.style.display = "none";
+          this.textContent = "📞 聯繫管理員";
+        }
+      };
+
+      // 複製管理員郵箱功能（可選）
+      document
+        .getElementById("adminContactInfo")
+        .addEventListener("click", function (e) {
+          if (e.target.tagName === "P") {
+            const email = "admin@system.com";
+            navigator.clipboard.writeText(email).then(() => {
+              const msg = document.getElementById("recoveryMsg");
+              msg.style.color = "green";
+              msg.textContent = "✅ 已複製管理員郵箱到剪貼板";
+            });
+          }
+        });
+
+      // 發送恢復郵件
+      document.getElementById("recoverAccountBtn").onclick = async () => {
+        const email = document.getElementById("recoveryEmail").value.trim();
+        const msg = document.getElementById("recoveryMsg");
+
+        if (!email) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 請輸入註冊的電子郵箱";
+          return;
+        }
+
+        // 簡單的郵箱格式驗證
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 請輸入有效的電子郵箱地址";
+          return;
+        }
+
+        try {
+          msg.style.color = "blue";
+          msg.textContent = "⏳ 發送中，請稍候...";
+
+          const response = await fetch("/api/auth/forgot-account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            msg.style.color = "green";
+            msg.textContent = "✅ " + result.message;
+
+            // 3秒後自動關閉Modal
+            setTimeout(() => {
+              document.getElementById("forgotAccountModal").style.display =
+                "none";
+            }, 3000);
+          } else {
+            msg.style.color = "red";
+            msg.textContent = "❌ " + result.error;
+          }
+        } catch (error) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 網絡錯誤，請稍後再試";
+        }
+      };
+    </script>
+  </body>
+</html>
