@@ -100,10 +100,10 @@ function initializeDatabase() {
 // 初始化默認數據
 function initializeDefaultData() {
     const adminUsers = [
-        { username: 'admin', password: 'admin123', email: 'admin@system.com', is_admin: 1 },
+        
         { username: 'admin2', password: 'admin123', email: 'admin2@system.com', is_admin: 1 },
         { username: 'admin3', password: 'admin123', email: 'admin3@system.com', is_admin: 1 },
-        { username: 'user1', password: 'pass123', email: 'user1@example.com', is_admin: 0 },
+        
         { username: 'user2', password: 'pass123', email: 'user2@example.com', is_admin: 0 }
     ];
 
