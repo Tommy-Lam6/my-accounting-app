@@ -100,10 +100,10 @@ function initializeDatabase() {
 // 初始化默認數據
 function initializeDefaultData() {
     const adminUsers = [
-        
+        { username: 'admin', password: 'admin123', email: 'admin@system.com', is_admin: 1 },
         { username: 'admin2', password: 'admin123', email: 'admin2@system.com', is_admin: 1 },
         { username: 'admin3', password: 'admin123', email: 'admin3@system.com', is_admin: 1 },
-        
+        { username: 'user1', password: 'pass123', email: 'user1@example.com', is_admin: 0 },
         { username: 'user2', password: 'pass123', email: 'user2@example.com', is_admin: 0 }
     ];
 
@@ -283,6 +283,54 @@ app.post('/api/auth/reset-password', (req, res) => {
         
         addSystemLog('info', `密碼重設請求: ${username}`);
         res.json({ success: true, message: '重設連結已發送到您的註冊郵箱' });
+    });
+});
+
+// 用戶自助重設密碼（使用電郵驗證）
+app.post('/api/auth/reset-password-by-email', (req, res) => {
+    const { email, newPassword } = req.body;
+    
+    if (!email || !newPassword) {
+        return res.json({ success: false, error: '請填寫所有欄位' });
+    }
+    
+    if (newPassword.length < 6) {
+        return res.json({ success: false, error: '密碼至少6個字符' });
+    }
+    
+    // 查找用戶
+    db.get("SELECT username FROM users WHERE email = ?", [email], (err, row) => {
+        if (err) {
+            addSystemLog('error', `重設密碼查詢失敗: ${err.message}`);
+            return res.json({ success: false, error: '伺服器錯誤' });
+        }
+        
+        if (!row) {
+            return res.json({ success: false, error: '該電郵地址未註冊' });
+        }
+        
+        // 更新密碼
+        db.run(
+            "UPDATE users SET password = ? WHERE email = ?",
+            [newPassword, email],
+            function(err) {
+                if (err) {
+                    addSystemLog('error', `重設密碼失敗: ${err.message}`);
+                    return res.json({ success: false, error: '重設密碼失敗' });
+                }
+                
+                if (this.changes === 0) {
+                    return res.json({ success: false, error: '重設密碼失敗' });
+                }
+                
+                addSystemLog('info', `用戶 ${row.username} 通過電郵重設密碼成功`);
+                res.json({ 
+                    success: true, 
+                    message: '密碼重設成功，請使用新密碼登入',
+                    username: row.username
+                });
+            }
+        );
     });
 });
 

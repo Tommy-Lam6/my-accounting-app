@@ -375,11 +375,62 @@
     <div id="forgotAccountModal" class="modal">
       <div class="modal-content">
         <h2>🔑 忘記用戶名稱或密碼</h2>
-        <p style="margin-bottom: 15px; color: #666; font-size: 14px">
-          請輸入您的註冊電子郵箱，我們將發送帳戶信息到您的郵箱。
-        </p>
-        <input type="email" id="recoveryEmail" placeholder="輸入註冊的 Email" />
-        <button id="recoverAccountBtn">📧 發送恢復郵件</button>
+
+        <!-- 選擇模式 -->
+        <div id="modeSelection" style="margin-bottom: 20px">
+          <p style="margin-bottom: 15px; color: #666; font-size: 14px">
+            請選擇您需要的服務：
+          </p>
+          <button
+            id="recoverUsernameBtn"
+            style="margin-right: 10px; background: #17a2b8"
+          >
+            📧 找回用戶名
+          </button>
+          <button id="resetPasswordBtn" style="background: #dc3545">
+            🔐 重設密碼
+          </button>
+        </div>
+
+        <!-- 找回用戶名模式 -->
+        <div id="recoverMode" style="display: none">
+          <p style="margin-bottom: 15px; color: #666; font-size: 14px">
+            請輸入您的註冊電子郵箱，我們將發送帳戶信息到您的郵箱。
+          </p>
+          <input
+            type="email"
+            id="recoveryEmail"
+            placeholder="輸入註冊的 Email"
+          />
+          <button id="recoverAccountBtn">📧 發送恢復郵件</button>
+        </div>
+
+        <!-- 重設密碼模式 -->
+        <div id="resetMode" style="display: none">
+          <p style="margin-bottom: 15px; color: #666; font-size: 14px">
+            請輸入您的註冊電子郵箱和新密碼來重設密碼。
+          </p>
+          <input
+            type="email"
+            id="resetEmail"
+            placeholder="輸入註冊的 Email"
+            style="margin-bottom: 10px"
+          />
+          <input
+            type="password"
+            id="newPassword"
+            placeholder="輸入新密碼 (至少6個字符)"
+            style="margin-bottom: 10px"
+          />
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="確認新密碼"
+            style="margin-bottom: 10px"
+          />
+          <button id="confirmResetBtn">🔐 重設密碼</button>
+        </div>
+
         <button
           onclick="document.getElementById('forgotAccountModal').style.display='none'"
           style="margin-top: 10px; background: #aaa"
@@ -478,6 +529,26 @@
         document.getElementById("forgotAccountModal").style.display = "flex";
         document.getElementById("recoveryEmail").value = "";
         document.getElementById("recoveryMsg").textContent = "";
+        // 重置模式顯示
+        document.getElementById("modeSelection").style.display = "block";
+        document.getElementById("recoverMode").style.display = "none";
+        document.getElementById("resetMode").style.display = "none";
+      };
+
+      // 選擇找回用戶名模式
+      document.getElementById("recoverUsernameBtn").onclick = function () {
+        document.getElementById("modeSelection").style.display = "none";
+        document.getElementById("recoverMode").style.display = "block";
+        document.getElementById("resetMode").style.display = "none";
+        document.getElementById("recoveryMsg").textContent = "";
+      };
+
+      // 選擇重設密碼模式
+      document.getElementById("resetPasswordBtn").onclick = function () {
+        document.getElementById("modeSelection").style.display = "none";
+        document.getElementById("recoverMode").style.display = "none";
+        document.getElementById("resetMode").style.display = "block";
+        document.getElementById("recoveryMsg").textContent = "";
       };
 
       // 聯繫管理員功能
@@ -550,6 +621,94 @@
             msg.textContent = "❌ " + result.error;
           }
         } catch (error) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 網絡錯誤，請稍後再試";
+        }
+      };
+
+      // 重設密碼邏輯
+      document.getElementById("confirmResetBtn").onclick = async function () {
+        console.log("🔐 重設密碼按鈕被點擊");
+
+        const email = document.getElementById("resetEmail").value.trim();
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+        const msg = document.getElementById("recoveryMsg");
+
+        console.log("📧 輸入的郵箱:", email);
+        console.log("🔒 密碼長度:", newPassword.length);
+
+        if (!email) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 請輸入註冊的電子郵箱";
+          return;
+        }
+
+        // 簡單的郵箱格式驗證
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 請輸入有效的電子郵箱地址";
+          return;
+        }
+
+        if (!newPassword) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 請輸入新密碼";
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 密碼至少6個字符";
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          msg.style.color = "red";
+          msg.textContent = "❌ 兩次輸入的密碼不一致";
+          return;
+        }
+
+        try {
+          msg.style.color = "blue";
+          msg.textContent = "⏳ 重設中，請稍候...";
+
+          console.log("🌐 發送API請求...");
+          const response = await fetch("/api/auth/reset-password-by-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, newPassword }),
+          });
+
+          console.log("📡 收到響應:", response.status, response.statusText);
+          const result = await response.json();
+          console.log("📋 API結果:", result);
+
+          if (result.success) {
+            msg.style.color = "green";
+            msg.textContent = "✅ " + result.message;
+
+            // 清空表單
+            document.getElementById("resetEmail").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+
+            console.log("🎉 密碼重設成功！");
+
+            // 3秒後自動關閉Modal
+            setTimeout(() => {
+              document.getElementById("forgotAccountModal").style.display =
+                "none";
+            }, 3000);
+          } else {
+            console.error("❌ 重設失敗:", result.error);
+            msg.style.color = "red";
+            msg.textContent = "❌ " + result.error;
+          }
+        } catch (error) {
+          console.error("🚨 網絡錯誤:", error);
           msg.style.color = "red";
           msg.textContent = "❌ 網絡錯誤，請稍後再試";
         }

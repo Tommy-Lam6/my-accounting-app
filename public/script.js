@@ -1079,7 +1079,7 @@ async performDailyReset(targetDate = null) {
     }
 },
 
-// 修改：移除指定日期的交易（增強功能）
+// 修改：移除指定日期的交易（增強功能） - 修改為不移除收入記錄
 removeTransactionsByDate(date, forceDelete = false) {
     console.log('🗑️ 開始移除交易，日期:', date, '強制刪除:', forceDelete);
     
@@ -1090,7 +1090,20 @@ removeTransactionsByDate(date, forceDelete = false) {
         // 記錄要刪除的交易詳情
         const transactionsToRemove = this.transactions.filter(t => t.date === date);
         
-        this.transactions = this.transactions.filter(t => t.date !== date);
+        // 修改：日結時不移除收入記錄，讓收入在月份中持續顯示
+        this.transactions = this.transactions.filter(t => {
+            // 如果不是指定日期，保留
+            if (t.date !== date) return true;
+            
+            // 如果是指定日期，但是收入類型，也保留
+            if (t.type === 'income') {
+                console.log('💰 保留收入記錄:', t);
+                return true;
+            }
+            
+            // 其他交易（開支）則移除
+            return false;
+        });
         
         const removedCount = originalLength - this.transactions.length;
         console.log(`移除 ${removedCount} 筆交易，剩餘 ${this.transactions.length} 筆`);
